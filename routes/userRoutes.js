@@ -26,8 +26,9 @@ const authenticateToken = (req, res, next) => {
 // Route để lấy thông tin tài khoản người dùng đang đăng nhập
 router.get("/me", authenticateToken, async (req, res) => {
   try {
+    console.log(req.user)
     // Tìm người dùng từ decoded thông tin trong token
-    const user = await User.findOne({ user_id: req.user });
+    const user = await User.findOne({ user_id: req.user.user_id });
 
     if (!user) {
       return res.status(404).json({ message: "User not found" });
