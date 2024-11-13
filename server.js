@@ -33,7 +33,7 @@ app.use('/product', productRoutes)
 //   console.log("Server is running on http://0.0.0.0:3000");
 // });
 
-app.listen(3000, () => {
-  console.log("Server is running on 3000");
+app.listen(5000, () => {
+  console.log("Server is running on 5000");
 });
 module.exports = app

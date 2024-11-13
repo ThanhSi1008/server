@@ -4,8 +4,7 @@
   "main": "index.js",
   "scripts": {
     "start": "node server.js",
-    "dev": "nodemon server.js",
-    "build": "echo `do you want to build a snowman`"
+    "dev": "nodemon server.js"
   },
   "keywords": [],
   "author": "",
