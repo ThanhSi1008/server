@@ -9,7 +9,7 @@ const accountSchema = new mongoose.Schema({
 // Định nghĩa schema cho user
 const userSchema = new mongoose.Schema(
   {
-    user_id: {
+    _id: {
       type: mongoose.Schema.Types.ObjectId,
       required: true,
       auto: true,

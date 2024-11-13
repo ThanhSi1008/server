@@ -16,7 +16,7 @@ const authenticateToken = (req, res, next) => {
 
   try {
     const decoded = jwt.verify(token, process.env.JWT_SECRET); // Xác thực token
-    req.user_id = decoded; // Lưu thông tin user đã được giải mã từ token
+    req._id = decoded; // Lưu thông tin user đã được giải mã từ token
     next(); // Tiếp tục xử lý request
   } catch (error) {
     res.status(400).json({ message: "Invalid token." });
@@ -28,7 +28,7 @@ router.get("/me", authenticateToken, async (req, res) => {
   try {
     console.log(req.user)
     // Tìm người dùng từ decoded thông tin trong token
-    const user = await User.findOne({ _id: req.user_id });
+    const user = await User.findOne({ _id: req._id });
 
     if (!user) {
       return res.status(404).json({ message: "User not found" });
@@ -36,7 +36,7 @@ router.get("/me", authenticateToken, async (req, res) => {
 
     // Trả về thông tin người dùng
     res.json({
-      user_id: user.user_id,
+      _id: user._id,
       full_name: user.full_name,
       phone_number: user.phone_number,
       email: user.email,
@@ -63,6 +63,8 @@ router.post("/auth", async (req, res) => {
       return res.status(401).json({ message: "Invalid password" });
     }
 
+    
+
     // Tạo JWT token với secret key từ biến môi trường
     const token = jwt.sign(
       user._id,
@@ -75,7 +77,7 @@ router.post("/auth", async (req, res) => {
       message: "Login successful",
       token, // Trả về token
       user: {
-        user_id: user.user_id,
+        _id: user._id,
         full_name: user.full_name,
         phone_number: user.phone_number,
         email: user.email,
