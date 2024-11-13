@@ -49,7 +49,7 @@ router.get("/me", authenticateToken, async (req, res) => {
 
 router.post("/auth", async (req, res) => {
   const { user_name, password } = req.body;
-
+  
   try {
     // Tìm người dùng dựa trên tên người dùng
     const user = await User.findOne({ "account.user_name": user_name });
@@ -63,8 +63,7 @@ router.post("/auth", async (req, res) => {
       return res.status(401).json({ message: "Invalid password" });
     }
 
-    
-
+    console.log(user)
     // Tạo JWT token với secret key từ biến môi trường
     const token = jwt.sign(
       user._id,
