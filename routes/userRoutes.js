@@ -16,7 +16,7 @@ const authenticateToken = (req, res, next) => {
 
   try {
     const decoded = jwt.verify(token, process.env.JWT_SECRET); // Xác thực token
-    req.user = decoded; // Lưu thông tin user đã được giải mã từ token
+    req.user_id = decoded; // Lưu thông tin user đã được giải mã từ token
     next(); // Tiếp tục xử lý request
   } catch (error) {
     res.status(400).json({ message: "Invalid token." });
@@ -28,7 +28,7 @@ router.get("/me", authenticateToken, async (req, res) => {
   try {
     console.log(req.user)
     // Tìm người dùng từ decoded thông tin trong token
-    const user = await User.findOne({ user_id: req.user.user_id });
+    const user = await User.findOne({ _id: req.user_id });
 
     if (!user) {
       return res.status(404).json({ message: "User not found" });
@@ -65,7 +65,7 @@ router.post("/auth", async (req, res) => {
 
     // Tạo JWT token với secret key từ biến môi trường
     const token = jwt.sign(
-      { user_id: user.user_id, user_name: user.account.user_name },
+      user._id,
       process.env.JWT_SECRET, // Sử dụng secret từ biến môi trường
       { expiresIn: "1h" } // Token hết hạn sau 1 giờ
     );
