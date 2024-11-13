@@ -2,7 +2,7 @@ const mongoose = require("mongoose");
 
 // Định nghĩa schema cho account
 const accountSchema = new mongoose.Schema({
-  user_name: { type: String, required: true },
+  username: { type: String, required: true },
   password: { type: String, required: true },
 });
 

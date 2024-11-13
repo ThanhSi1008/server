@@ -1,10 +1,11 @@
 const express = require("express");
-const User = require("../models/user"); // Import model user
-const jwt = require("jsonwebtoken"); // Import thư viện jwt
+const bcrypt = require("bcryptjs");
+const jwt = require("jsonwebtoken");
+const User = require("../models/user"); // Import your User model
 require("dotenv").config();
 const router = express.Router();
 
-// Middleware để xác thực token
+// Middleware to authenticate JWT token
 const authenticateToken = (req, res, next) => {
   const token = req.header("Authorization")?.replace("Bearer ", "");
 
@@ -15,78 +16,108 @@ const authenticateToken = (req, res, next) => {
   }
 
   try {
-    const decoded = jwt.verify(token, process.env.JWT_SECRET); // Xác thực token
-    console.log("decoded " + decoded)
-    req._id = decoded._id; // Lưu thông tin user đã được giải mã từ token
-    next(); // Tiếp tục xử lý request
+    const decoded = jwt.verify(token, process.env.JWT_SECRET);
+    req._id = decoded._id;
+    next();
   } catch (error) {
     res.status(400).json({ message: "Invalid token." });
   }
 };
 
-// Route để lấy thông tin tài khoản người dùng đang đăng nhập
-router.get("/me", authenticateToken, async (req, res) => {
+// Route to signup a new user
+router.post("/signup", async (req, res) => {
+  const { fullName, email, phoneNumber, username, password } = req.body;
   try {
-    console.log(req.user)
-    // Tìm người dùng từ decoded thông tin trong token
-    const user = await User.findOne({ _id: req._id });
-
-    if (!user) {
-      return res.status(404).json({ message: "User not found" });
+    // Check if user already exists
+    const existingUser = await User.findOne({
+      $or: [{ email }, { "account.username": username }],
+    });
+    if (existingUser) {
+      return res
+        .status(400)
+        .json({ message: "User with this email or username already exists." });
     }
+    // Hash password before saving
+    const salt = await bcrypt.genSalt(10);
+    const hashedPassword = await bcrypt.hash(password, salt);
+    // Create new user
+    const newUser = new User({
+      full_name: fullName,
+      email,
+      phone_number: phoneNumber,
+      username: username,
+      account: { username: username, password: hashedPassword },
+    });
+    await newUser.save();
 
-    // Trả về thông tin người dùng
-    res.json({
-      _id: user._id,
-      full_name: user.full_name,
-      phone_number: user.phone_number,
-      email: user.email,
-      dob: user.dob,
+    // Create JWT token
+    const token = jwt.sign({ _id: newUser._id }, process.env.JWT_SECRET, {
+      expiresIn: "1h",
+    });
+
+    // Respond with token and user info
+    res.status(201).json({
+      message: "Signup successful",
+      token,
+      user: {
+        _id: newUser._id,
+        full_name: newUser.full_name,
+        phone_number: newUser.phone_number,
+        email: newUser.email,
+      },
     });
   } catch (error) {
     res.status(500).json({ message: "Server error", error });
   }
 });
 
+// Route to login
 router.post("/login", async (req, res) => {
   const { username, password } = req.body;
-  
-  console.log(username)
-
   try {
-    // Tìm người dùng dựa trên tên người dùng
-    const user = await User.findOne({ "account.user_name": username });
-
+    const user = await User.findOne({ "account.username": username });
     if (!user) {
       return res.status(404).json({ message: "User not found" });
     }
 
-    // Kiểm tra mật khẩu
-    if (user.account.password !== password) {
+    // Compare the password using bcrypt
+    const isMatch = await bcrypt.compare(password, user.account.password);
+    if (!isMatch) {
       return res.status(401).json({ message: "Invalid password" });
     }
 
-    
-    // Tạo JWT token với secret key từ biến môi trường
-    const token = jwt.sign(
-      { _id: user._id},
-      process.env.JWT_SECRET, // Sử dụng secret từ biến môi trường
-      { expiresIn: "1h" } // Token hết hạn sau 1 giờ
-    );
+    // Create JWT token
+    const token = jwt.sign({ _id: user._id }, process.env.JWT_SECRET, {
+      expiresIn: "1h",
+    });
 
-    console.log(user)
-
-    // Trả về thông tin người dùng và token
     res.json({
       message: "Login successful",
-      token, // Trả về token
+      token,
       user: {
         _id: user._id,
         full_name: user.full_name,
         phone_number: user.phone_number,
         email: user.email,
-        dob: user.dob,
       },
+    });
+  } catch (error) {
+    res.status(500).json({ message: "Server error", error });
+  }
+});
+// Route to get the current user's information
+router.get("/me", authenticateToken, async (req, res) => {
+  try {
+    const user = await User.findOne({ _id: req._id });
+    if (!user) {
+      return res.status(404).json({ message: "User not found" });
+    }
+    res.json({
+      _id: user._id,
+      full_name: user.full_name,
+      phone_number: user.phone_number,
+      email: user.email,
+      dob: user.dob,
     });
   } catch (error) {
     res.status(500).json({ message: "Server error", error });
