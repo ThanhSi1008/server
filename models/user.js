@@ -17,7 +17,6 @@ const userSchema = new mongoose.Schema(
     full_name: { type: String, required: true },
     phone_number: { type: String, required: true },
     email: { type: String, required: true },
-    dob: { type: Date, required: true }, // Ngày sinh, kiểu ISODate
     account: accountSchema, // Thông tin tài khoản
   },
   { timestamps: true }
