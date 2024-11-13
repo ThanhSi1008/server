@@ -24,6 +24,7 @@ const movieSchema = new mongoose.Schema(
     release_date: { type: Date, required: true },
     movie_poster: { type: String, required: true }, // link tới ảnh poster
     casts: [castSchema], // Danh sách các diễn viên
+    rating: { type: String, required: true },
   },
   { timestamps: true }
 ); // Tự động tạo các trường createdAt và updatedAt
