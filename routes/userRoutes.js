@@ -16,7 +16,8 @@ const authenticateToken = (req, res, next) => {
 
   try {
     const decoded = jwt.verify(token, process.env.JWT_SECRET); // Xác thực token
-    req._id = decoded; // Lưu thông tin user đã được giải mã từ token
+    console.log("decoded " + decoded)
+    req._id = decoded._id; // Lưu thông tin user đã được giải mã từ token
     next(); // Tiếp tục xử lý request
   } catch (error) {
     res.status(400).json({ message: "Invalid token." });
@@ -63,13 +64,15 @@ router.post("/auth", async (req, res) => {
       return res.status(401).json({ message: "Invalid password" });
     }
 
-    console.log(user)
+    
     // Tạo JWT token với secret key từ biến môi trường
     const token = jwt.sign(
-      user._id,
+      { _id: user._id},
       process.env.JWT_SECRET, // Sử dụng secret từ biến môi trường
       { expiresIn: "1h" } // Token hết hạn sau 1 giờ
     );
+
+    console.log(user)
 
     // Trả về thông tin người dùng và token
     res.json({
