@@ -51,6 +51,8 @@ router.get("/me", authenticateToken, async (req, res) => {
 router.post("/login", async (req, res) => {
   const { username, password } = req.body;
   
+  console.log(username)
+
   try {
     // Tìm người dùng dựa trên tên người dùng
     const user = await User.findOne({ "account.user_name": username });
