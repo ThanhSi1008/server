@@ -25,4 +25,39 @@ router.get("/:id", async (req, res) => {
   }
 });
 
+router.get("/:id/reviews", async (req, res) => {
+  try {
+    const movieId = req.params.id;
+
+    // Validate movie ID
+    if (!ObjectId.isValid(movieId)) {
+      return res.status(400).json({ error: "Invalid movie ID format" });
+    }
+
+    // Find movie by ID
+    const movie = await Movie.findOne({ _id: ObjectId(movieId) });
+    if (!movie) {
+      return res.status(404).json({ error: "Movie not found" });
+    }
+
+    // Find reviews for the movie
+    const reviews = await Review.find({ movie_id: ObjectId(movieId) });
+
+    // Respond with movie info and its reviews
+    res.json({
+      movie_name: movie.movie_name,
+      reviews: reviews.map((review) => ({
+        review_id: review.review_id,
+        user_id: review.user_id,
+        rating: review.rating,
+        comment: review.comment,
+        time: review.time,
+      })),
+    });
+  } catch (error) {
+    console.error("Error retrieving reviews:", error);
+    res.status(500).json({ error: "Internal server error" });
+  }
+});
+
 module.exports = router;
