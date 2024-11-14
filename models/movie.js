@@ -1,6 +1,6 @@
 const mongoose = require("mongoose");
 
-// Định nghĩa schema cho movie
+// Define schema for the cast
 const castSchema = new mongoose.Schema({
   person_id: { type: mongoose.Schema.Types.ObjectId, required: true },
   person_name: { type: String, required: true },
@@ -8,28 +8,24 @@ const castSchema = new mongoose.Schema({
   character_name: { type: String, required: true },
 });
 
+// Define schema for the movie
 const movieSchema = new mongoose.Schema(
   {
-    movie_id: {
-      type: mongoose.Schema.Types.ObjectId,
-      required: true,
-      auto: true,
-    },
     movie_name: { type: String, required: true },
-    duration: { type: Number, required: true }, // thời gian, tính bằng phút
+    duration: { type: Number, required: true }, // Duration in minutes
     description: { type: String, required: true },
     genre: { type: String, required: true },
     language: { type: String, required: true },
     trailer_link: { type: String, required: true },
     release_date: { type: Date, required: true },
-    movie_poster: { type: String, required: true }, // link tới ảnh poster
-    casts: [castSchema], // Danh sách các diễn viên
+    movie_poster: { type: String, required: true }, // URL to poster image
+    casts: [castSchema], // List of cast members
     rating: { type: String, required: true },
   },
-  { timestamps: true }
-); // Tự động tạo các trường createdAt và updatedAt
+  { timestamps: true } // Automatically create createdAt and updatedAt fields
+);
 
-// Tạo model từ schema
+// Create the Movie model from the schema
 const Movie = mongoose.model("Movie", movieSchema);
 
 module.exports = Movie;
