@@ -36,22 +36,29 @@ router.get("/:id/reviews", async (req, res) => {
       });
     }
 
-    // Format the response with full user details
+    // Format the response with full user details, checking for null user_id
     res.json({
       movie_name: movie.movie_name,
-      reviews: reviews.reviews.map((review) => ({
-        user: {
-          id: review.user_id._id,
-          full_name: review.user_id.full_name,
-          phone_number: review.user_id.phone_number,
-          email: review.user_id.email,
-          dob: review.user_id.dob,
-          user_name: review.user_id.account.user_name,
-        },
-        rating: review.rating,
-        comment: review.comment,
-        time: review.time,
-      })),
+      reviews: reviews.reviews.map((review) => {
+        // Check if user_id exists before accessing its fields
+        const user = review.user_id
+          ? {
+              id: review.user_id._id,
+              full_name: review.user_id.full_name,
+              phone_number: review.user_id.phone_number,
+              email: review.user_id.email,
+              dob: review.user_id.dob,
+              user_name: review.user_id.account.user_name,
+            }
+          : null;
+
+        return {
+          user,
+          rating: review.rating,
+          comment: review.comment,
+          time: review.time,
+        };
+      }),
     });
   } catch (error) {
     console.error("Error retrieving reviews:", error);
