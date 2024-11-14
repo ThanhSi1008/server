@@ -1,7 +1,7 @@
 const express = require("express");
 const Movie = require("../models/movie"); // Import model movie
 const router = express.Router();
-
+const Review = require("../models/reviews")
 // Route để lấy danh sách tất cả các phim
 router.get("/", async (req, res) => {
   try {
@@ -30,24 +30,30 @@ router.get("/:id/reviews", async (req, res) => {
     const movieId = req.params.id;
 
     // Validate movie ID
-    if (!ObjectId.isValid(movieId)) {
+    if (!mongoose.Types.ObjectId.isValid(movieId)) {
       return res.status(400).json({ error: "Invalid movie ID format" });
     }
 
-    // Find movie by ID
-    const movie = await Movie.findOne({ _id: ObjectId(movieId) });
+    // Find the movie by ID
+    const movie = await Movie.findById(movieId);
     if (!movie) {
       return res.status(404).json({ error: "Movie not found" });
     }
 
     // Find reviews for the movie
-    const reviews = await Review.find({ movie_id: ObjectId(movieId) });
+    const reviews = await Review.findOne({ movie_id: movieId });
 
-    // Respond with movie info and its reviews
+    if (!reviews || !reviews.reviews.length) {
+      return res.json({
+        movie_name: movie.movie_name,
+        reviews: []
+      });
+    }
+
+    // Format the response
     res.json({
       movie_name: movie.movie_name,
-      reviews: reviews.map((review) => ({
-        review_id: review.review_id,
+      reviews: reviews.reviews.map((review) => ({
         user_id: review.user_id,
         rating: review.rating,
         comment: review.comment,
