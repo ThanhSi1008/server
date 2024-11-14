@@ -2,6 +2,7 @@ const express = require("express");
 const Movie = require("../models/movie"); // Import model movie
 const router = express.Router();
 const Review = require("../models/reviews")
+const mongoose = require("mongoose")
 // Route để lấy danh sách tất cả các phim
 router.get("/", async (req, res) => {
   try {
