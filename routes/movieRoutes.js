@@ -1,31 +1,12 @@
 const express = require("express");
-const Movie = require("../models/movie"); // Import model movie
+const Movie = require("../models/movie");
+const Review = require("../models/reviews");
+const User = require("../models/user"); // Import User model
+const mongoose = require("mongoose");
+
 const router = express.Router();
-const Review = require("../models/reviews")
-const mongoose = require("mongoose")
-// Route để lấy danh sách tất cả các phim
-router.get("/", async (req, res) => {
-  try {
-    const movies = await Movie.find(); // Truy vấn tất cả phim trong database
-    res.json(movies); // Trả về danh sách phim dưới dạng JSON
-  } catch (error) {
-    console.error(error);
-    res.status(500).json({ message: "Server error" });
-  }
-});
 
-router.get("/:id", async (req, res) => {
-  try {
-    console.log("req.params: " + req.params);
-    const movie = await Movie.findOne({_id: req.params.id});
-    console.log('movie at routes: ' + movie)
-    if (!movie) return res.status(404).json({ message: "Movie not found" });
-    res.json({ movie });
-  } catch (error) {
-    res.status(500).json({ message: "Server error" });
-  }
-});
-
+// Route to get movie details by ID, including reviews with user details
 router.get("/:id/reviews", async (req, res) => {
   try {
     const movieId = req.params.id;
@@ -41,8 +22,12 @@ router.get("/:id/reviews", async (req, res) => {
       return res.status(404).json({ error: "Movie not found" });
     }
 
-    // Find reviews for the movie
-    const reviews = await Review.findOne({ movie_id: movieId });
+    // Find reviews for the movie and populate user details
+    const reviews = await Review.findOne({ movie_id: movieId }).populate({
+      path: "reviews.user_id",
+      model: "User",
+      select: "full_name phone_number email dob account.user_name",
+    });
 
     if (!reviews || !reviews.reviews.length) {
       return res.json({
@@ -51,11 +36,18 @@ router.get("/:id/reviews", async (req, res) => {
       });
     }
 
-    // Format the response
+    // Format the response with full user details
     res.json({
       movie_name: movie.movie_name,
       reviews: reviews.reviews.map((review) => ({
-        user_id: review.user_id,
+        user: {
+          id: review.user_id._id,
+          full_name: review.user_id.full_name,
+          phone_number: review.user_id.phone_number,
+          email: review.user_id.email,
+          dob: review.user_id.dob,
+          user_name: review.user_id.account.user_name,
+        },
         rating: review.rating,
         comment: review.comment,
         time: review.time,
