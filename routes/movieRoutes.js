@@ -15,9 +15,9 @@ router.get("/", async (req, res) => {
 
 router.get("/:id", async (req, res) => {
   try {
-    console.log("req.params.id" + req.params.id);
-    console.log("req.params._id" + req.params._id);
-    const movie = await Movie.findById(req.params.id);
+    console.log("req.params: " + req.params);
+    const movie = await Movie.findOne({_id: req.params.id});
+    console.log('movie at routes: ' + movie)
     if (!movie) return res.status(404).json({ message: "Movie not found" });
     res.json({ movie });
   } catch (error) {
