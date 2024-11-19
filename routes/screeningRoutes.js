@@ -3,7 +3,7 @@ const router = express.Router()
 const Screening = require('../models/screening')
 
 // Route to get all screenings on a specific date
-router.get('/screenings', async (req, res) => {
+router.get('/', async (req, res) => {
   try {
     // Extract the date parameter from the query string
     const { date } = req.query
