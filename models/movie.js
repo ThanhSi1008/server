@@ -14,7 +14,6 @@ const reviewsSchema = new mongoose.Schema({
   number_of_ratings: { type: Number, required: true },
 });
 
-
 // Define schema for the movie
 const movieSchema = new mongoose.Schema(
   {
@@ -27,7 +26,7 @@ const movieSchema = new mongoose.Schema(
     release_date: { type: Date, required: true },
     movie_poster: { type: String, required: true }, // URL to poster image
     casts: [castSchema], // List of cast members
-    rating: { type: String, required: true },
+    rating: { reviewsSchema },
   },
   { timestamps: true } // Automatically create createdAt and updatedAt fields
 );

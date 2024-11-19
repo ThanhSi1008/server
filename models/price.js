@@ -1,16 +1,15 @@
 const mongoose = require("mongoose");
 
-// Định nghĩa schema cho price_detail
 const priceDetailSchema = new mongoose.Schema({
   item: {
     _id: {
-      type: mongoose.Schema.Types.ObjectId, // Lưu ObjectId của Product hoặc Screening
+      type: mongoose.Schema.Types.ObjectId,
       required: true,
     },
     type: {
       type: String,
       required: true,
-      enum: ["Product", "Screening"], // Giới hạn giá trị của type là Product hoặc Screening
+      enum: ["Product", "Screening"],
     },
   },
   price: {
@@ -19,13 +18,12 @@ const priceDetailSchema = new mongoose.Schema({
   },
 });
 
-// Định nghĩa schema cho price
 const priceSchema = new mongoose.Schema(
   {
     price_id: {
       type: mongoose.Schema.Types.ObjectId,
       required: true,
-      auto: true, // Tự động tạo giá trị cho price_id
+      auto: true,
     },
     name: {
       type: String,
@@ -35,12 +33,11 @@ const priceSchema = new mongoose.Schema(
       type: Boolean,
       required: true,
     },
-    price_details: [priceDetailSchema], // Mảng các price_details
+    price_details: [priceDetailSchema],
   },
-  { timestamps: true } // Tạo tự động các trường createdAt và updatedAt
+  { timestamps: true }
 );
 
-// Tạo model từ schema
 const Price = mongoose.model("Price", priceSchema);
 
 module.exports = Price;
