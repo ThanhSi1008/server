@@ -4,9 +4,14 @@ const mongoose = require('mongoose')
 const Screening = require('../models/screening')
 
 // Route to get screenings by both date and movie_id
+
 router.get('/', async (req, res) => {
   try {
     const { date, movie_id } = req.query
+
+    console.log('Received date:', date)
+    console.log('Received movie_id:', movie_id)
+
 
     // Validate that both parameters are provided
     if (!date || !movie_id) {
