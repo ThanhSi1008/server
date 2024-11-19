@@ -30,7 +30,7 @@ router.get('/', async (req, res) => {
 
     // Query the screenings collection
     const screenings = await Screening.find({
-      movie_id: mongoose.Types.ObjectId(movie_id), // Ensure proper ObjectId casting
+      movie_id, // Ensure proper ObjectId casting
       screening_time: {
         $gte: startOfDay,
         $lte: endOfDay,
