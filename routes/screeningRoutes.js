@@ -1,11 +1,11 @@
 const express = require('express')
 const router = express.Router()
+const mongoose = require('mongoose')
 const Screening = require('../models/screening')
 
 // Route to get screenings by both date and movie_id
 router.get('/', async (req, res) => {
   try {
-    // Extract the date and movie_id parameters from the query string
     const { date, movie_id } = req.query
 
     // Validate that both parameters are provided
@@ -13,14 +13,19 @@ router.get('/', async (req, res) => {
       return res.status(400).json({ error: 'Both date and movie_id query parameters are required.' })
     }
 
+    // Validate `movie_id` format
+    if (!mongoose.Types.ObjectId.isValid(movie_id)) {
+      return res.status(400).json({ error: 'Invalid movie_id format. Must be a 24-character hex string.' })
+    }
+
     // Parse the date and create a range for the full day
     const startOfDay = new Date(date)
     const endOfDay = new Date(date)
     endOfDay.setHours(23, 59, 59, 999)
 
-    // Query the screenings collection for matching records
+    // Query the screenings collection
     const screenings = await Screening.find({
-      movie_id,
+      movie_id: mongoose.Types.ObjectId(movie_id), // Ensure proper ObjectId casting
       screening_time: {
         $gte: startOfDay,
         $lte: endOfDay,
