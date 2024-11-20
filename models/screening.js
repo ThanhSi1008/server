@@ -1,15 +1,5 @@
 const mongoose = require("mongoose");
 
-const seatTypeSchema = new mongoose.Schema({
-  seat_type_id: {
-    type: mongoose.Schema.Types.ObjectId,
-    required: true,
-    auto: true,
-  },
-  capacity: { type: Number, required: true },
-  rate: { type: Number, required: true },
-});
-
 const seatSchema = new mongoose.Schema({
   seat_id: {
     type: mongoose.Schema.Types.ObjectId,
@@ -17,7 +7,7 @@ const seatSchema = new mongoose.Schema({
     auto: true,
   },
   seat_location: { type: String, required: true },
-  seat_type: seatTypeSchema,
+  seat_type_id: { type: mongoose.Schema.Types.ObjectId, required: true },
   status: { type: Boolean, required: true },
 });
 
@@ -25,8 +15,8 @@ const addressSchema = new mongoose.Schema({
   street: { type: String, required: true },
   city: { type: String, required: true },
   state: { type: String, required: true },
+  zipCode: { type: String, required: true },
   country: { type: String, required: true },
-  postal_code: { type: String, required: true },
 });
 
 const theaterSchema = new mongoose.Schema({
@@ -58,7 +48,6 @@ const screeningSchema = new mongoose.Schema(
     },
     screening_time: { type: Date, required: true },
     end_time: { type: Date, required: true },
-    price_per_ticket: { type: Number, required: true },
 
     theater: theaterSchema,
     room: roomSchema,
