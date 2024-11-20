@@ -52,6 +52,7 @@ const screeningSchema = new mongoose.Schema(
     theater: theaterSchema,
     room: roomSchema,
     seats: [seatSchema],
+    ticket_price: { type: Number, required: true },
   },
   { timestamps: true }
 );
