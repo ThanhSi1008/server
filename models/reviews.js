@@ -1,17 +1,16 @@
 const mongoose = require("mongoose");
 
-// Định nghĩa schema cho review
 const reviewSchema = new mongoose.Schema(
   {
     review_id: {
       type: mongoose.Schema.Types.ObjectId,
       required: true,
-      auto: true, // Tự động tạo giá trị cho review_id
+      auto: true,
     },
     movie_id: {
       type: mongoose.Schema.Types.ObjectId,
       required: true,
-      ref: "Movie", // Liên kết với model Movie
+      ref: "Movie",
     },
     date: {
       year: { type: Number, required: true },
@@ -22,18 +21,17 @@ const reviewSchema = new mongoose.Schema(
         user_id: {
           type: mongoose.Schema.Types.ObjectId,
           required: true,
-          ref: "User", // Liên kết với model User
+          ref: "User",
         },
-        rating: { type: Number, required: true }, // Đánh giá của người dùng
-        comment: { type: String, required: true }, // Bình luận của người dùng
-        time: { type: Date, required: true }, // Thời gian người dùng để lại đánh giá
+        rating: { type: Number, required: true },
+        comment: { type: String, required: true },
+        time: { type: Date, required: true },
       },
     ],
   },
-  { timestamps: true } // Tạo tự động các trường createdAt và updatedAt
+  { timestamps: true }
 );
 
-// Tạo model từ schema
 const Review = mongoose.model("Review", reviewSchema);
 
 module.exports = Review;

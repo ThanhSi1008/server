@@ -27,25 +27,49 @@ router.get("/:id", async (req, res) => {
   }
 });
 
-router.post("/:Id/reviews", async (req, res) => {
+router.post("/:movieId/reviews", async (req, res) => {
   const { movieId } = req.params;
-  const { rating, reviewText } = req.body;
+  const { rating, reviewText, userId } = req.body; // Assuming userId, rating, and reviewText are passed in the request body
 
-  if (!rating || !reviewText) {
-    return res
-      .status(400)
-      .json({ message: "Rating and review text are required." });
+  const currentDate = new Date();
+  const currentMonth = currentDate.getMonth() + 1; // 1-indexed month
+  const currentYear = currentDate.getFullYear();
+
+  // Ensure that the movieId exists in the Movie collection
+  const movie = await Movie.findById(movieId);
+  if (!movie) {
+    return res.status(404).json({ error: "Movie not found" });
   }
 
-  try {
-    const newReview = new Review({ movieId, rating, reviewText });
-    await newReview.save();
+  // Prepare the new review
+  const newReview = {
+    movie_id: movieId,
+    date: {
+      month: currentMonth,
+      year: currentYear,
+    },
+    reviews: [
+      {
+        user_id: mongoose.Types.ObjectId(userId), // Ensure userId is a valid ObjectId
+        rating,
+        comment: reviewText,
+        time: currentDate,
+      },
+    ],
+  };
 
-    res.status(201).json({ review: newReview });
+  try {
+    // Insert the review into the database
+    const review = new Review(newReview);
+    await review.save();
+
+    // Return the new review data
+    res.status(201).json({ success: true, review });
   } catch (err) {
+    console.error("Error saving review:", err);
     res
       .status(500)
-      .json({ message: "Failed to save review.", error: err.message });
+      .json({ error: "Failed to save review", message: err.message });
   }
 });
 
