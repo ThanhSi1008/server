@@ -29,11 +29,13 @@ router.get("/:id", async (req, res) => {
 
 router.post("/:movieId/reviews", async (req, res) => {
   const { movieId } = req.params;
-  const { rating, reviewText, userId } = req.body; // Assuming userId, rating, and reviewText are passed in the request body
+  const { rating, reviewText, userId } = req.body;
 
   const currentDate = new Date();
   const currentMonth = currentDate.getMonth() + 1; // 1-indexed month
   const currentYear = currentDate.getFullYear();
+
+  console.log("Received Data:", { movieId, rating, reviewText, userId });
 
   // Ensure that the movieId exists in the Movie collection
   const movie = await Movie.findById(movieId);
@@ -41,29 +43,31 @@ router.post("/:movieId/reviews", async (req, res) => {
     return res.status(404).json({ error: "Movie not found" });
   }
 
-  // Prepare the new review
   const newReview = {
-    user_id: mongoose.Types.ObjectId(userId), // Ensure userId is a valid ObjectId
+    user_id: mongoose.Types.ObjectId(userId),
     rating,
     comment: reviewText,
     time: currentDate,
   };
 
   try {
-    // Check if the review document for the movie and current month/year exists
+    // Check if review document exists for this movie and current month/year
     let reviewDoc = await Review.findOne({
       movie_id: mongoose.Types.ObjectId(movieId),
       "date.month": currentMonth,
       "date.year": currentYear,
     });
 
+    console.log("Found review document:", reviewDoc);
+
     if (reviewDoc) {
-      // If the document exists, push the new review to the reviews array
+      // If document exists, push the new review
       reviewDoc.reviews.push(newReview);
       await reviewDoc.save();
-      res.status(200).json({ success: true, review: newReview });
+      console.log("Review added successfully:", newReview);
+      return res.status(200).json({ success: true, review: newReview });
     } else {
-      // If no document exists for this month/year, create a new document
+      // If no document exists, create a new one
       const newReviewDoc = new Review({
         movie_id: mongoose.Types.ObjectId(movieId),
         date: {
@@ -73,7 +77,8 @@ router.post("/:movieId/reviews", async (req, res) => {
         reviews: [newReview],
       });
       await newReviewDoc.save();
-      res.status(201).json({ success: true, review: newReview });
+      console.log("New review document created:", newReview);
+      return res.status(201).json({ success: true, review: newReview });
     }
   } catch (err) {
     console.error("Error saving review:", err);
