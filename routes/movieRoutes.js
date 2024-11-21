@@ -31,53 +31,52 @@ router.post("/:movieId/reviews", async (req, res) => {
   const { movieId } = req.params;
   const { rating, reviewText, userId } = req.body;
 
+  // Kiểm tra xem rating và reviewText có bị thiếu không
+  if (!rating || !reviewText) {
+    return res
+      .status(400)
+      .json({ error: "Rating and review text are required" });
+  }
+
   const currentDate = new Date();
   const currentMonth = currentDate.getMonth() + 1; // 1-indexed month
   const currentYear = currentDate.getFullYear();
 
-  console.log("Received Data:", { movieId, rating, reviewText, userId });
-
-  // Ensure that the movieId exists in the Movie collection
+  // Kiểm tra xem bộ phim có tồn tại không
   const movie = await Movie.findById(movieId);
   if (!movie) {
     return res.status(404).json({ error: "Movie not found" });
   }
 
+  // Chuẩn bị review mới
   const newReview = {
-    user_id: new mongoose.Types.ObjectId(userId), // Create ObjectId using 'new'
-    rating,
-    comment: reviewText,
+    user_id: new mongoose.Types.ObjectId(userId),
+    rating: rating, // Đảm bảo rating được truyền vào
+    comment: reviewText, // Đảm bảo comment được truyền vào
     time: currentDate,
   };
 
   try {
-    // Check if review document exists for this movie and current month/year
+    // Kiểm tra xem đã có document review cho tháng và năm này chưa
     let reviewDoc = await Review.findOne({
-      movie_id: new mongoose.Types.ObjectId(movieId), // Ensure ObjectId is used with 'new'
+      movie_id: new mongoose.Types.ObjectId(movieId),
       "date.month": currentMonth,
       "date.year": currentYear,
     });
 
-    console.log("Found review document:", reviewDoc);
-
     if (reviewDoc) {
-      // If document exists, push the new review
+      // Nếu đã có review cho tháng/năm này, thêm review vào mảng reviews
       reviewDoc.reviews.push(newReview);
       await reviewDoc.save();
-      console.log("Review added successfully:", newReview);
       return res.status(200).json({ success: true, review: newReview });
     } else {
-      // If no document exists, create a new one
+      // Nếu chưa có review cho tháng/năm này, tạo mới document review
       const newReviewDoc = new Review({
-        movie_id: new mongoose.Types.ObjectId(movieId), // Create ObjectId using 'new'
-        date: {
-          month: currentMonth,
-          year: currentYear,
-        },
+        movie_id: new mongoose.Types.ObjectId(movieId),
+        date: { month: currentMonth, year: currentYear },
         reviews: [newReview],
       });
       await newReviewDoc.save();
-      console.log("New review document created:", newReview);
       return res.status(201).json({ success: true, review: newReview });
     }
   } catch (err) {
