@@ -31,7 +31,6 @@ router.post("/:movieId/reviews", async (req, res) => {
   const { movieId } = req.params;
   const { rating, reviewText, userId } = req.body;
 
-  // Kiểm tra xem rating và reviewText có bị thiếu không
   if (!rating || !reviewText) {
     return res
       .status(400)
@@ -42,22 +41,21 @@ router.post("/:movieId/reviews", async (req, res) => {
   const currentMonth = currentDate.getMonth() + 1; // 1-indexed month
   const currentYear = currentDate.getFullYear();
 
-  // Kiểm tra xem bộ phim có tồn tại không
-  const movie = await Movie.findById(movieId);
-  if (!movie) {
-    return res.status(404).json({ error: "Movie not found" });
-  }
-
-  // Chuẩn bị review mới
   const newReview = {
     user_id: new mongoose.Types.ObjectId(userId),
-    rating: rating, // Đảm bảo rating được truyền vào
-    comment: reviewText, // Đảm bảo comment được truyền vào
+    rating: rating,
+    comment: reviewText,
     time: currentDate,
   };
 
   try {
-    // Kiểm tra xem đã có document review cho tháng và năm này chưa
+    // Verify if the movie exists
+    const movie = await Movie.findById(movieId);
+    if (!movie) {
+      return res.status(404).json({ error: "Movie not found" });
+    }
+
+    // Check if a review document exists for the current month/year
     let reviewDoc = await Review.findOne({
       movie_id: new mongoose.Types.ObjectId(movieId),
       "date.month": currentMonth,
@@ -65,12 +63,12 @@ router.post("/:movieId/reviews", async (req, res) => {
     });
 
     if (reviewDoc) {
-      // Nếu đã có review cho tháng/năm này, thêm review vào mảng reviews
+      // Add the new review to the existing document
       reviewDoc.reviews.push(newReview);
       await reviewDoc.save();
       return res.status(200).json({ success: true, review: newReview });
     } else {
-      // Nếu chưa có review cho tháng/năm này, tạo mới document review
+      // Create a new review document if none exists
       const newReviewDoc = new Review({
         movie_id: new mongoose.Types.ObjectId(movieId),
         date: { month: currentMonth, year: currentYear },
@@ -81,7 +79,7 @@ router.post("/:movieId/reviews", async (req, res) => {
     }
   } catch (err) {
     console.error("Error saving review:", err);
-    res
+    return res
       .status(500)
       .json({ error: "Failed to save review", message: err.message });
   }
