@@ -44,7 +44,7 @@ router.post("/:movieId/reviews", async (req, res) => {
   }
 
   const newReview = {
-    user_id: mongoose.Types.ObjectId(userId),
+    user_id: new mongoose.Types.ObjectId(userId), // Create ObjectId using 'new'
     rating,
     comment: reviewText,
     time: currentDate,
@@ -53,7 +53,7 @@ router.post("/:movieId/reviews", async (req, res) => {
   try {
     // Check if review document exists for this movie and current month/year
     let reviewDoc = await Review.findOne({
-      movie_id: mongoose.Types.ObjectId(movieId),
+      movie_id: new mongoose.Types.ObjectId(movieId), // Ensure ObjectId is used with 'new'
       "date.month": currentMonth,
       "date.year": currentYear,
     });
@@ -69,7 +69,7 @@ router.post("/:movieId/reviews", async (req, res) => {
     } else {
       // If no document exists, create a new one
       const newReviewDoc = new Review({
-        movie_id: mongoose.Types.ObjectId(movieId),
+        movie_id: new mongoose.Types.ObjectId(movieId), // Create ObjectId using 'new'
         date: {
           month: currentMonth,
           year: currentYear,
