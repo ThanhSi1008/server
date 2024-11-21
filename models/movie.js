@@ -17,6 +17,7 @@ const reviewsSchema = new mongoose.Schema({
 // Define schema for the movie
 const movieSchema = new mongoose.Schema(
   {
+    _id: { type: mongoose.Schema.Types.ObjectId, required: true, auto: true },
     movie_name: { type: String, required: true },
     duration: { type: Number, required: true }, // Duration in minutes
     description: { type: String, required: true },
