@@ -5,6 +5,7 @@ const movieRoutes = require('./routes/movieRoutes')
 const authRoutes = require('./routes/authRoutes')
 const productRoutes = require('./routes/productRoutes')
 const screeningRoutes = require("./routes/screeningRoutes")
+const orderRoutes = require("./routes/orderRoutes")
 const { errorHandler } = require("./middleware/errorMiddleware")
 
 const app = express()
@@ -29,7 +30,7 @@ app.use('/products', productRoutes)
 
 app.use("/screenings", screeningRoutes)
 
-app.use("/orders")
+app.use("/orders", orderRoutes)
 
 app.use(errorHandler)
 
