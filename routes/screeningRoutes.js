@@ -68,4 +68,46 @@ router.get('/', protect, async (req, res) => {
   }
 });
 
+router.patch('/update-seats', protect, async (req, res) => {
+  try {
+    const { screening_id, seat_locations } = req.body;
+
+    if (!screening_id || !seat_locations || !Array.isArray(seat_locations) || seat_locations.length === 0) {
+      return res.status(400).json({ error: 'screening_id and seat_locations array are required.' });
+    }
+
+    // Ensure that all seat locations are strings
+    const seatLocations = seat_locations.map(seat => seat.trim());
+
+    // Update the status of the seats directly in the screening document
+    const updatedScreening = await Screening.updateOne(
+      { screening_id },
+      { 
+        $set: { 
+          'seats.$[seat].status': false 
+        }
+      },
+      {
+        arrayFilters: [
+          { 'seat.seat_location': { $in: seatLocations } }
+        ],
+        new: true // Optionally return the updated document
+      }
+    );
+
+    if (updatedScreening.modifiedCount === 0) {
+      return res.status(404).json({ error: 'No seats found to update.' });
+    }
+
+    // Respond with a success message
+    res.status(200).json({
+      message: 'Seats status updated successfully.',
+      updatedSeats: seatLocations
+    });
+  } catch (error) {
+    console.error('Error updating seat status:', error);
+    res.status(500).json({ error: 'Internal server error' });
+  }
+});
+
 module.exports = router;
