@@ -27,7 +27,7 @@ router.get("/:id", async (req, res) => {
   }
 })
 
-router.get("/:id/reviews", async (req, res) => {
+router.get("/:id/reviews", protect, async (req, res) => {
   try {
     const movieId = req.params.id
 

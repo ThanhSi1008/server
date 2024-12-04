@@ -2,10 +2,11 @@ const express = require('express')
 const router = express.Router()
 const mongoose = require('mongoose')
 const Screening = require('../models/screening')
+const { protect } = require("../middleware/authMiddleware")
 
 // Route to get screenings by both date and movie_id
 
-router.get('/', async (req, res) => {
+router.get('/', protect, async (req, res) => {
   try {
     const { date, movie_id } = req.query
 

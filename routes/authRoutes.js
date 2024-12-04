@@ -4,6 +4,7 @@
   const User = require("../models/user"); // Import your User model
   require("dotenv").config();
   const router = express.Router();
+  const { protect } = require("../middleware/authMiddleware")
 
   // Middleware to authenticate JWT token
   const authenticateToken = (req, res, next) => {
@@ -92,36 +93,28 @@
         expiresIn: "1h",
       });
 
-      res.json({
-        message: "Login successful",
-        token,
-        user: {
-          _id: user._id,
-          full_name: user.full_name,
-          phone_number: user.phone_number,
-          email: user.email,
-        },
-      });
+      // Pick specific fields to return
+      const userData = {
+        _id: user._id,
+        full_name: user.full_name,
+        email: user.email,
+        phone_number: user.phone_number,
+        avatar: user.avatar,
+        username: user.account.username,
+      };
+
+      res.json({ user: userData, token });
+
     } catch (error) {
       next(error)
     }
   });
-  // Route to get the current user's information
-  router.get("/me", authenticateToken, async (req, res) => {
+
+  router.get("/me", protect, async (req, res, next) => {
     try {
-      const user = await User.findOne({ _id: req._id });
-      if (!user) {
-        return res.status(404).json({ message: "User not found" });
-      }
-      res.json({
-        _id: user._id,
-        full_name: user.full_name,
-        phone_number: user.phone_number,
-        email: user.email,
-        dob: user.dob,
-      });
+      res.json(req.user)
     } catch (error) {
-      res.status(500).json({ message: "Server error", error });
+      next(error)
     }
   });
   module.exports = router;
