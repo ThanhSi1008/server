@@ -29,6 +29,8 @@ app.use('/products', productRoutes)
 
 app.use("/screenings", screeningRoutes)
 
+app.use("/orders")
+
 app.use(errorHandler)
 
 app.listen(3001, () => {

@@ -4,7 +4,6 @@ const mongoose = require('mongoose');
 const Screening = require('../models/screening');
 const { protect } = require('../middleware/authMiddleware');
 
-// Route to get screenings by date and movie_id, grouped by theater name and address
 router.get('/', protect, async (req, res) => {
   try {
     const { date, movie_id } = req.query;
@@ -12,22 +11,18 @@ router.get('/', protect, async (req, res) => {
     console.log('Received date:', date);
     console.log('Received movie_id:', movie_id);
 
-    // Validate that both parameters are provided
     if (!date || !movie_id) {
       return res.status(400).json({ error: 'Both date and movie_id query parameters are required.' });
     }
 
-    // Validate `movie_id` format
     if (!mongoose.Types.ObjectId.isValid(movie_id)) {
       return res.status(400).json({ error: 'Invalid movie_id format. Must be a 24-character hex string.' });
     }
 
-    // Parse the date and create a range for the full day
     const startOfDay = new Date(date);
     const endOfDay = new Date(date);
     endOfDay.setHours(23, 59, 59, 999);
 
-    // Use aggregation to group screenings by theater name and address
     const screenings = await Screening.aggregate([
       {
         $match: {
@@ -43,7 +38,7 @@ router.get('/', protect, async (req, res) => {
           _id: {
             theater_name: '$theater.theater_name',
             address: '$theater.address',
-          }, // Group by theater name and address
+          },
           screenings: {
             $push: {
               screening_id: '$_id',
@@ -58,10 +53,10 @@ router.get('/', protect, async (req, res) => {
       },
       {
         $project: {
-          _id: 0, // Exclude the default `_id` field
+          _id: 0,
           theater_name: '$_id.theater_name',
           address: '$_id.address',
-          screenings: 1, // Include screenings array
+          screenings: 1,
         },
       },
     ]);

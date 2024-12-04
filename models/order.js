@@ -1,14 +1,14 @@
 const mongoose = require("mongoose");
 
 const seatTypeSchema = new mongoose.Schema({
-  seat_type_id: { type: mongoose.Schema.Types.ObjectId, required: true },
+  seat_type_id: { type: mongoose.Schema.Types.ObjectId, required: true},
   seat_type_name: { type: String, required: true },
 });
 
 const seatSchema = new mongoose.Schema({
-  seat_id: { type: mongoose.Schema.Types.ObjectId, required: true },
+  seat_id: { type: mongoose.Schema.Types.ObjectId, required: false },
   seat_location: { type: String, required: true },
-  seat_type: { type: seatTypeSchema, required: true },
+  seat_type: { type: seatTypeSchema, required: false },
 });
 
 const productSchema = new mongoose.Schema({
@@ -21,6 +21,7 @@ const productSchema = new mongoose.Schema({
 });
 
 const userSchema = new mongoose.Schema({
+  user_id: { type: mongoose.Schema.Types.ObjectId, required: true },
   name: { type: String, required: true },
   phone_number: { type: String, required: true },
   email: { type: String, required: true },
@@ -42,7 +43,7 @@ const orderSchema = new mongoose.Schema(
       ref: "Screening",
     },
     products: [productSchema],
-    user_id: userSchema,
+    user: userSchema,
   },
   { timestamps: true }
 );
