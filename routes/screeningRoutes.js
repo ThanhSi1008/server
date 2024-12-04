@@ -68,9 +68,10 @@ router.get('/', protect, async (req, res) => {
   }
 });
 
-router.patch('/update-seats', protect, async (req, res) => {
+router.put('/update-seats', protect, async (req, res) => {
   try {
     const { screening_id, seat_locations } = req.body;
+    console.log(req.body)
 
     if (!screening_id || !seat_locations || !Array.isArray(seat_locations) || seat_locations.length === 0) {
       return res.status(400).json({ error: 'screening_id and seat_locations array are required.' });
