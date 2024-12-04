@@ -12,9 +12,9 @@ const productSchema = new mongoose.Schema(
     available: { type: Boolean, required: true },
     volume: { type: Number },
     size: { type: String },
-    calories: { type: String },
+    calories: { type: Number },
     flavor: { type: String },
-    combo: [{ type: this }],
+    items: [{ type: this }],
   },
   { timestamps: true }
 );
