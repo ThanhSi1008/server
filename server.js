@@ -5,6 +5,7 @@ const movieRoutes = require('./routes/movieRoutes')
 const authRoutes = require('./routes/authRoutes')
 const productRoutes = require('./routes/productRoutes')
 const screeningRoutes = require("./routes/screeningRoutes")
+const { errorHandler } = require("./middleware/errorMiddleware")
 
 const app = express()
 
@@ -27,6 +28,8 @@ app.use('/auth', authRoutes)
 app.use('/products', productRoutes)
 
 app.use("/screenings", screeningRoutes)
+
+app.use(errorHandler)
 
 app.listen(3001, () => {
   console.log("Server is running on 3001")
