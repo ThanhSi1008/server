@@ -21,7 +21,7 @@ app.get('/', (req, res) => {
   res.send('<h1>Welcome to the Cinema app!</h1>')
 })
 
-// app.use('/movies', movieRoutes)
+app.use('/movies', movieRoutes)
 
 app.use('/auth', authRoutes)
 
