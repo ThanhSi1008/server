@@ -17,6 +17,64 @@ router.get("/", protect, async (req, res) => {
   }
 });
 
+router.post("/:movieId/reviews", protect, async (req, res) => {
+  const { movieId } = req.params;
+  const { rating, reviewText } = req.body;
+
+  if (!rating || !reviewText) {
+    return res
+      .status(400)
+      .json({ error: "Rating and review text are required" });
+  }
+
+  const currentDate = new Date();
+  const currentMonth = currentDate.getMonth() + 1; // 1-indexed month
+  const currentYear = currentDate.getFullYear();
+
+  const newReview = {
+    user_id: req.user._id,
+    rating: rating,
+    comment: reviewText,
+    time: currentDate,
+  };
+
+  try {
+    // Verify if the movie exists
+    const movie = await Movie.findById(movieId);
+    if (!movie) {
+      return res.status(404).json({ error: "Movie not found" });
+    }
+
+    // Check if a review document exists for the current month/year
+    let reviewDoc = await Review.findOne({
+      movie_id: new mongoose.Types.ObjectId(movieId),
+      "date.month": currentMonth,
+      "date.year": currentYear,
+    });
+
+    if (reviewDoc) {
+      // Add the new review to the existing document
+      reviewDoc.reviews.push(newReview);
+      await reviewDoc.save();
+      return res.status(200).json({ success: true, review: newReview });
+    } else {
+      // Create a new review document if none exists
+      const newReviewDoc = new Review({
+        movie_id: new mongoose.Types.ObjectId(movieId),
+        date: { month: currentMonth, year: currentYear },
+        reviews: [newReview],
+      });
+      await newReviewDoc.save();
+      return res.status(201).json({ success: true, review: newReview });
+    }
+  } catch (err) {
+    console.error("Error saving review:", err);
+    return res
+      .status(500)
+      .json({ error: "Failed to save review", message: err.message });
+  }
+});
+
 router.get("/:id", protect, async (req, res) => {
   try {
     const movie = await Movie.findById(req.params.id) // Thay đổi tùy theo cách lấy dữ liệu của bạn
