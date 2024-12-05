@@ -11,7 +11,7 @@ router.get("/", protect, async (req, res, next) => {
 
     // Fetch orders for the current user
     const orders = await Order.find({ "user.user_id": userId })
-      .sort({ order_date: -1 })
+    .sort({ order_date: -1 })
       .populate({
         path: "screening_id", // Populate screening details
         model: "Screening",
@@ -36,7 +36,7 @@ router.get("/", protect, async (req, res, next) => {
 
       return {
         order_id: order.order_id,
-        order_date: order.orderDate.toLocaleString("en-US", { timeZone: "Asia/Ho_Chi_Minh" }),
+        order_date: order.order_date,
         total: order.total,
         seats: order.seats,
         products: order.products,
