@@ -94,7 +94,7 @@ router.get("/:id/reviews", protect, async (req, res) => {
     }
 
     // Find the movie by ID
-    const movie = await Movie.findById(movieId)
+    const movie = await Movie.findById(movieId);
     if (!movie) {
       return res.status(404).json({ error: "Movie not found" });
     }
@@ -112,9 +112,12 @@ router.get("/:id/reviews", protect, async (req, res) => {
       });
     }
 
+    // Reverse the reviews array to display the most recent first
+    const reversedReviews = reviews.reviews.reverse();
+
     res.json({
       movie_name: movie.movie_name,
-      reviews: reviews.reviews.map((review) => {
+      reviews: reversedReviews.map((review) => {
         // Check if user_id exists before accessing its fields
         const user = review.user_id
           ? {
@@ -140,5 +143,6 @@ router.get("/:id/reviews", protect, async (req, res) => {
     res.status(500).json({ error: "Internal server error" });
   }
 });
+
 
 module.exports = router;
