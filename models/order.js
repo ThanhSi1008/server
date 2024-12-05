@@ -13,7 +13,7 @@ const seatSchema = new mongoose.Schema({
 
 const productSchema = new mongoose.Schema({
   product: {
-    product_id: { type: mongoose.Schema.Types.ObjectId, required: true },
+    product_id: { type: mongoose.Schema.Types.ObjectId, required: false },
     name: { type: String, required: true },
     price: { type: Number, required: true },
   },

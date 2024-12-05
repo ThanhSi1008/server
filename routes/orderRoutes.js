@@ -5,7 +5,7 @@ const { protect } = require("../middleware/authMiddleware");
 const mongoose = require("mongoose");
 
 // Route to create a new order
-router.post("/", protect, async (req, res) => {
+router.post("/", protect, async (req, res, next) => {
   try {
     const {
       total,
@@ -20,7 +20,7 @@ router.post("/", protect, async (req, res) => {
       phone_number: req.user.phone_number,
       email: req.user.email
     }
-    if (!total || !seats || !screening_id || !products || !user_id) {
+    if (!total || !seats || !screening_id || !products ) {
       return res.status(400).json({ message: "All fields are required." });
     }
 
