@@ -11,6 +11,7 @@ router.get("/", protect, async (req, res, next) => {
 
     // Fetch orders for the current user
     const orders = await Order.find({ "user.user_id": userId })
+      .sort({ order_date: -1 })
       .populate({
         path: "screening_id", // Populate screening details
         model: "Screening",
