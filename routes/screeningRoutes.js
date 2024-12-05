@@ -8,9 +8,6 @@ router.get('/', protect, async (req, res) => {
   try {
     const { date, movie_id } = req.query;
 
-    console.log('Received date:', date);
-    console.log('Received movie_id:', movie_id);
-
     if (!date || !movie_id) {
       return res.status(400).json({ error: 'Both date and movie_id query parameters are required.' });
     }
@@ -71,7 +68,6 @@ router.get('/', protect, async (req, res) => {
 router.put('/update-seats', protect, async (req, res) => {
   try {
     const { screening_id, seat_locations } = req.body;
-    console.log(req.body)
 
     if (!screening_id || !seat_locations || !Array.isArray(seat_locations) || seat_locations.length === 0) {
       return res.status(400).json({ error: 'screening_id and seat_locations array are required.' });
@@ -80,9 +76,16 @@ router.put('/update-seats', protect, async (req, res) => {
     // Ensure that all seat locations are strings
     const seatLocations = seat_locations.map(seat => seat.trim());
 
+    const matchedDocument = await Screening.findOne({
+      _id: new mongoose.Types.ObjectId(screening_id),
+      'seats.seat_location': { $in: seatLocations }
+    });
+    console.log('Matched Document:', matchedDocument);
+    
+
     // Update the status of the seats directly in the screening document
     const updatedScreening = await Screening.updateOne(
-      { screening_id },
+      { _id: new mongoose.Types.ObjectId(screening_id) },
       { 
         $set: { 
           'seats.$[seat].status': false 
