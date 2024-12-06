@@ -37,7 +37,7 @@ router.get("/", protect, async (req, res, next) => {
 
       return {
         order_id: order.order_id,
-        order_date: DateTime.fromJSDate(order.order_date).setZone('Asia/Ho_Chi_Minh'),
+        order_date: order.order_date,
         total: order.total,
         seats: order.seats,
         products: order.products,
@@ -81,7 +81,6 @@ router.post("/", protect, async (req, res, next) => {
       return res.status(400).json({ message: "All fields are required." });
     }
 
-    const now = DateTime.now().setZone('Asia/Ho_Chi_Minh');
     const newOrder = new Order({
       order_id: new mongoose.Types.ObjectId(),
       total,
@@ -89,7 +88,7 @@ router.post("/", protect, async (req, res, next) => {
       screening_id,
       products,
       user,
-      order_date: now.toUTC().toJSDate()
+      order_date: new Date(now.getTime() + 7 * 60 * 60 * 1000)
     });
 
     const savedOrder = await newOrder.save();
