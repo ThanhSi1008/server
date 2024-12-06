@@ -88,7 +88,7 @@ router.post("/", protect, async (req, res, next) => {
       screening_id,
       products,
       user,
-      order_date: moment.tz('Asia/Ho_Chi_Minh').toDate()
+      order_date: now.toJSDate()
     });
 
     const savedOrder = await newOrder.save();
