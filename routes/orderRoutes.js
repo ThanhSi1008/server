@@ -89,7 +89,7 @@ router.post("/", protect, async (req, res, next) => {
       screening_id,
       products,
       user,
-      order_date: now.toJSDate()
+      order_date: now.toUTC().toJSDate()
     });
 
     const savedOrder = await newOrder.save();
