@@ -3,7 +3,7 @@ const Order = require("../models/order"); // Import the Order model
 const router = express.Router();
 const { protect } = require("../middleware/authMiddleware");
 const mongoose = require("mongoose");
-const moment = require('moment-timezone');
+const { DateTime } = require('luxon');
 
 // Route to get all orders for the current user with screening and movie details
 router.get("/", protect, async (req, res, next) => {
@@ -81,6 +81,7 @@ router.post("/", protect, async (req, res, next) => {
       return res.status(400).json({ message: "All fields are required." });
     }
 
+    const now = DateTime.now().setZone('Asia/Ho_Chi_Minh');
     const newOrder = new Order({
       order_id: new mongoose.Types.ObjectId(),
       total,
