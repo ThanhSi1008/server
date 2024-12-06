@@ -37,7 +37,7 @@ router.get("/", protect, async (req, res, next) => {
 
       return {
         order_id: order.order_id,
-        order_date: order.order_date,
+        order_date: DateTime.fromJSDate(order.order_date).setZone('Asia/Ho_Chi_Minh'),
         total: order.total,
         seats: order.seats,
         products: order.products,
