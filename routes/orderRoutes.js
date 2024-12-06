@@ -3,6 +3,7 @@ const Order = require("../models/order"); // Import the Order model
 const router = express.Router();
 const { protect } = require("../middleware/authMiddleware");
 const mongoose = require("mongoose");
+const moment = require('moment-timezone');
 
 // Route to get all orders for the current user with screening and movie details
 router.get("/", protect, async (req, res, next) => {
@@ -86,7 +87,8 @@ router.post("/", protect, async (req, res, next) => {
       seats,
       screening_id,
       products,
-      user
+      user,
+      order_date: moment.tz('Asia/Ho_Chi_Minh').toDate()
     });
 
     const savedOrder = await newOrder.save();
